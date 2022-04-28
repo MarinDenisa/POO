@@ -1,0 +1,154 @@
+#include <stdint.h>
+#include <iostream>
+#include <algorithm>
+#include <string>
+#include <cstdio>
+#include <vector>
+using namespace std;
+class Mat {
+private:
+	uint16_t mCols;
+	uint16_t mRows;
+	double* mData;
+public:
+
+	Mat(uint16_t mRows, uint16_t mCols) {
+		this->mRows = mRows;
+		this->mCols = mCols;
+		mData = new double[mRows * mCols]();
+	}
+	Mat() {
+		mCols = 0;
+		mRows = 0;
+		mData = nullptr;
+	}
+	Mat(uint16_t cols) {
+		this->mCols = cols;
+		mRows = 1;
+		mData = new double[mRows * mCols]();
+	}
+	Mat(const Mat& other) {
+		mCols = other.mCols;
+		mRows = other.mRows;
+		mData = other.mData;
+	}
+	uint16_t getCols() {
+		return mCols;
+	}
+	void setValue(uint16_t i, uint16_t j, double d) {
+		mData[i * mCols + j] = d;
+	}
+	uint16_t getRows() {
+		return mRows;
+	}
+	double getValue(uint16_t i, uint16_t j) {
+		return mData[i * mCols + j];
+	}
+	Mat operator*(const Mat& other) {
+		Mat resultat(mRows, mCols);
+		if (mCols == other.mCols && mRows == other.mRows) {
+			for (int i = 0; i < mRows * mCols; i++) {
+				resultat.mData[i] = other.mData[i] * mData[i];
+			}
+			return resultat;
+		}
+		return Mat(0, 0);
+	}
+	Mat operator+(const Mat& other) {
+		Mat result(mRows, mCols);
+		if (mCols == other.mCols && mRows == other.mRows) {
+			for (int i = 0; i < mRows * mCols; i++) {
+				result.mData[i] = mData[i] + other.mData[i];
+			}
+			return result;
+		}
+		return Mat(0, 0);
+	}
+
+	/*Mat operator^(const Mat&op2){
+	int i,j,k;
+	Mat result(mRows,op2.mCols);
+	double a[mRows][mCols]={0},b[op2.mRows][op2.mCols]={0},c[mRows][op2.mCols]={0};
+	for(i=0;i<mRows;i++){
+	for(j=0;j<mCols;j++)
+	a[i][j]=mData[i*mCols+j];
+	}
+	for(i=0;i<op2.mRows;i++){
+	for(j=0;j<op2.mCols;j++)
+	b[i][j]=op2.mData[i*op2.mCols+j];
+	}
+	for(i=0;i<mRows;i++)
+	for(j=0;j<op2.mCols;j++)
+	for(k=0;k<mCols;k++)
+	c[i][j]+=a[i][k]*b[k][j];
+	for(i=0;i<mRows;i++)
+	for(j=0;j<op2.mCols;j++)
+	result.mData[i*op2.mCols+j]=c[i][j];
+	return result;
+	}*/
+	~Mat() {
+		mData = NULL;
+		delete[] mData;
+	}
+	Mat operator^(const Mat& other) {
+		int i, j, k;
+		Mat rezultat(mRows, other.mCols);
+		double a[mRows][mCols], b[other.mRows][other.mCols], c[mRows][other.mCols];
+		for (i = 0; i < mRows; i++) {
+			for (j = 0; j < mCols; j++)
+				a[i][j] = mData[i * mCols + j];
+		}
+		for (i = 0; i < other.mRows; i++) {
+			for (j = 0; j < other.mCols; j++)
+				b[i][j] = other.mData[i * other.mCols + j];
+		}
+		for (i = 0; i < mRows; i++)
+			for (j = 0; j < other.mCols; j++)
+				c[i][j] = 0;
+		for (i = 0; i < mRows; i++)
+			for (j = 0; j < other.mCols; j++)
+				for (k = 0; k < mCols; k++)
+					c[i][j] += a[i][k] * b[k][j];
+		for (i = 0; i < mRows; i++)
+			for (j = 0; j < other.mCols; j++)
+				rezultat.mData[i * other.mCols + j] = c[i][j];
+		return rezultat;
+	}
+
+};
+int main() {
+	// Mat mat1(r1,c1);
+	// Mat mat2(r2,c2);
+	double val, sum;
+	int r1, r2, c1, c2, i, j;
+	scanf("%d %d", &r1, &c1);
+	Mat v(r1, c1);
+	scanf("%d %d", &r2, &c2);
+	Mat a(r2, c2);
+	for (j = 0; j < v.getRows(); j++) {
+		for (i = 0; i < v.getCols(); i++) {
+			cin >> val;
+			v.setValue(j, i, val);
+		}
+	}
+	for (j = 0; j < a.getRows(); j++) {
+		for (i = 0; i < a.getCols(); i++) {
+			cin >> val;
+			a.setValue(j, i, val);
+		}
+	}
+	Mat c(v.getRows(), a.getCols());
+	if (v.getCols() == a.getRows()) {
+		c = v ^ a;
+	}
+	else {
+		c = v * a + a;
+	}
+	for (j = 0; j < c.getRows(); j++) {
+		for (i = 0; i < c.getCols(); i++)
+			sum += c.getValue(j, i);
+	}
+	printf("%.2lf", sum / (c.getRows() * c.getCols()));
+
+	return 0;
+}

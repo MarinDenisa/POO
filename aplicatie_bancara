@@ -1,0 +1,126 @@
+#include <iostream>
+#include <algorithm>
+#include <string>
+#include <cstdio>
+#include <vector>
+using namespace std;
+class Account {
+	string mCurrency, mNume;
+	float mSold;
+public:
+	Account(string mCurrency) {
+		this->mCurrency = mCurrency;
+		mSold = 0;
+	}
+	Account() {
+		this->mCurrency = "Unknown";
+		mSold = 0;
+	}
+	Account(string mNume, string mCurrency, float mSold) {
+		this->mNume = mNume;
+		this->mCurrency = mCurrency;
+		this->mSold = mSold;
+	}
+
+
+	Account(string mCurrency, float mSold) {
+		this->mCurrency = mCurrency;
+		this->mSold = mSold;
+	}
+	Account operator+(const Account& a) {
+		float suma = 0;
+		if (mCurrency == a.mCurrency)
+		{
+			suma += a.mSold + mSold;
+			return Account(mNume, mCurrency, suma);
+		}
+		return Account();
+	}
+
+	Account(const Account& a)
+	{
+		mCurrency = a.mCurrency;
+		mSold = a.mSold;
+		mNume = a.mNume;
+	}
+
+	Account operator^(string mCurrency)
+	{
+		float suma = this->mSold;
+		if (mCurrency == "RON" && this->mCurrency == "USD")
+			suma = this->mSold * 4.09;
+		if (mCurrency == "RON" && this->mCurrency == "EUR")
+			suma = this->mSold * 4.86;
+		if (mCurrency == "EUR" && this->mCurrency == "USD")
+			suma = this->mSold * 0.84;
+		if (mCurrency == "EUR" && this->mCurrency == "RON")
+			suma = this->mSold * 0.20;
+		if (mCurrency == "USD" && this->mCurrency == "RON")
+			suma = this->mSold * 0.24;
+		if (mCurrency == "USD" && this->mCurrency == "EUR")
+			suma = this->mSold * 1.19;
+		Account cont(mNume, mCurrency, suma);
+		return cont;
+
+	}
+
+	bool operator>(const Account& a)
+	{
+		return mSold > a.mSold;
+	}
+	bool operator<(const Account& a)
+	{
+		return mSold < a.mSold;
+	}
+	string getNume() {
+		return mNume;
+	}
+	string getCurrency() {
+		return mCurrency;
+	}
+	float getSold() {
+		return mSold;
+	}
+
+};
+bool comparator(Account a, Account b) {
+	return a.getSold() > b.getSold();
+}
+int main() {
+	int n;
+	float mSold;
+	string nume, val, mCurrency;
+	vector<Account>v;
+	cin >> n;
+	for (int i = 0; i < n; i++) {
+		cin >> nume >> mCurrency >> mSold;
+
+		v.push_back(Account(nume, mCurrency, mSold));
+
+	}
+	cin >> val;
+	for (int i = 0; i < n; i++) {
+		if (v[i].getCurrency() != val)
+			v[i] = v[i] ^ val;
+
+	}
+	
+	for (int i = 0; i < v.size(); i++) {
+		for (int j = i + 1; j < v.size(); j++) {
+			if (v[i].getNume() == v[j].getNume()) {
+				v[i] = v[i] + v[j];
+				v.erase(v.begin() + j);
+				j--;
+			}
+		}
+	}
+	sort(v.begin(), v.end(), comparator);
+
+
+	for (int i = 0; i < v.size(); i++) {
+		cout << v[i].getNume() << " -> ";
+		printf("%.2f ", v[i].getSold());
+		cout << val << endl;
+	}
+	return 0;
+}
